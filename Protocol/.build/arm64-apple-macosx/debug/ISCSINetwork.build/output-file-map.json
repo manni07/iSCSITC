@@ -1,0 +1,12 @@
+{
+  "": {
+    "swift-dependencies": "/Volumes/turgay/projekte/iSCSITC/Protocol/.build/arm64-apple-macosx/debug/ISCSINetwork.build/master.swiftdeps"
+  },
+  "/Volumes/turgay/projekte/iSCSITC/Protocol/Sources/Network/Network.swift": {
+    "dependencies": "/Volumes/turgay/projekte/iSCSITC/Protocol/.build/arm64-apple-macosx/debug/ISCSINetwork.build/Network.d",
+    "object": "/Volumes/turgay/projekte/iSCSITC/Protocol/.build/arm64-apple-macosx/debug/ISCSINetwork.build/Network.swift.o",
+    "swiftmodule": "/Volumes/turgay/projekte/iSCSITC/Protocol/.build/arm64-apple-macosx/debug/ISCSINetwork.build/Network~partial.swiftmodule",
+    "swift-dependencies": "/Volumes/turgay/projekte/iSCSITC/Protocol/.build/arm64-apple-macosx/debug/ISCSINetwork.build/Network.swiftdeps",
+    "diagnostics": "/Volumes/turgay/projekte/iSCSITC/Protocol/.build/arm64-apple-macosx/debug/ISCSINetwork.build/Network.dia"
+  }
+}

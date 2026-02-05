@@ -1,0 +1,3 @@
+module ISCSIProtocolPackageTests {
+    header "/Volumes/turgay/projekte/iSCSITC/Protocol/.build/arm64-apple-macosx/debug/ISCSIProtocolPackageTests.build/include/ISCSIProtocolPackageTests-Swift.h"
+}

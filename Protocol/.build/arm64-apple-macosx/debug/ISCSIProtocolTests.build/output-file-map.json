@@ -1,0 +1,12 @@
+{
+  "": {
+    "swift-dependencies": "/Volumes/turgay/projekte/iSCSITC/Protocol/.build/arm64-apple-macosx/debug/ISCSIProtocolTests.build/master.swiftdeps"
+  },
+  "/Volumes/turgay/projekte/iSCSITC/Protocol/Tests/ProtocolTests/ProtocolTests.swift": {
+    "dependencies": "/Volumes/turgay/projekte/iSCSITC/Protocol/.build/arm64-apple-macosx/debug/ISCSIProtocolTests.build/ProtocolTests.d",
+    "object": "/Volumes/turgay/projekte/iSCSITC/Protocol/.build/arm64-apple-macosx/debug/ISCSIProtocolTests.build/ProtocolTests.swift.o",
+    "swiftmodule": "/Volumes/turgay/projekte/iSCSITC/Protocol/.build/arm64-apple-macosx/debug/ISCSIProtocolTests.build/ProtocolTests~partial.swiftmodule",
+    "swift-dependencies": "/Volumes/turgay/projekte/iSCSITC/Protocol/.build/arm64-apple-macosx/debug/ISCSIProtocolTests.build/ProtocolTests.swiftdeps",
+    "diagnostics": "/Volumes/turgay/projekte/iSCSITC/Protocol/.build/arm64-apple-macosx/debug/ISCSIProtocolTests.build/ProtocolTests.dia"
+  }
+}
