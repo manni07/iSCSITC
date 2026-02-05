@@ -298,4 +298,52 @@ public struct ISCSIPDUParser {
 
         return login
     }
+
+    public static func encodeLoginResponse(_ login: LoginResponsePDU) throws -> Data {
+        var pdu = ISCSIPDU(opcode: .loginResponse)
+
+        // Flags
+        var flags: UInt8 = 0
+        if login.transit { flags |= 0x80 }
+        if login.continue { flags |= 0x40 }
+        flags |= (login.currentStageCode & 0x03) << 2
+        flags |= login.nextStageCode & 0x03
+        pdu.bhs.flags = flags
+
+        // Opcode-specific
+        var spec = Data(count: 28)
+        spec[0] = login.versionMax
+        spec[1] = login.versionActive
+        spec.replaceSubrange(4..<10, with: login.isid)
+
+        withUnsafeBytes(of: login.tsih.bigEndian) { bytes in
+            spec.replaceSubrange(10..<12, with: bytes)
+        }
+
+        spec[12] = login.statusClass
+        spec[13] = login.statusDetail
+
+        pdu.bhs.initiatorTaskTag = login.initiatorTaskTag
+
+        withUnsafeBytes(of: login.statSN.bigEndian) { bytes in
+            spec.replaceSubrange(16..<20, with: bytes)
+        }
+        withUnsafeBytes(of: login.expCmdSN.bigEndian) { bytes in
+            spec.replaceSubrange(20..<24, with: bytes)
+        }
+        withUnsafeBytes(of: login.maxCmdSN.bigEndian) { bytes in
+            spec.replaceSubrange(24..<28, with: bytes)
+        }
+
+        pdu.bhs.opcodeSpecific = spec
+
+        // Data segment
+        if !login.keyValuePairs.isEmpty {
+            let data = encodeKeyValuePairs(login.keyValuePairs)
+            pdu.bhs.dataSegmentLength = UInt32(data.count)
+            pdu.dataSegment = data
+        }
+
+        return try encodePDU(pdu)
+    }
 }
