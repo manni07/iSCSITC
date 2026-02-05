@@ -1,2 +1,4 @@
-// ISCSINetwork module placeholder
-// This file will be replaced with actual network implementation
+// ISCSINetwork module
+// Network layer for iSCSI protocol using Network.framework
+
+@_exported import ISCSIProtocol
