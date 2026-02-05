@@ -9,10 +9,12 @@ let package = Package(
     products: [
         .library(
             name: "ISCSIProtocol",
+            type: .static,
             targets: ["ISCSIProtocol"]
         ),
         .library(
             name: "ISCSINetwork",
+            type: .static,
             targets: ["ISCSINetwork"]
         )
     ],
