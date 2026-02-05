@@ -1,3 +1,0 @@
-module ISCSIProtocol {
-    header "/Volumes/turgay/projekte/iSCSITC/Protocol/.build/arm64-apple-macosx/debug/ISCSIProtocol.build/include/ISCSIProtocol-Swift.h"
-}
