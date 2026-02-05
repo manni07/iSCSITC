@@ -1,5 +1,6 @@
 import Foundation
 import Network
+import ISCSIProtocol
 
 /// Manages a single TCP connection to an iSCSI target
 public actor ISCSIConnection {
