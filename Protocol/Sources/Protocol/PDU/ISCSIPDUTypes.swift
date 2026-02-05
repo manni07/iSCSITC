@@ -66,3 +66,83 @@ public struct ISCSIPDU: Sendable {
         self.bhs.opcode = opcode.rawValue
     }
 }
+
+// MARK: - Login PDU
+
+public struct LoginRequestPDU: Sendable {
+    // Flags (byte 1)
+    public var transit: Bool                    // T bit
+    public var `continue`: Bool                 // C bit
+    public var currentStageCode: UInt8          // CSG (2 bits)
+    public var nextStageCode: UInt8             // NSG (2 bits)
+
+    // Fields
+    public var versionMax: UInt8                // Byte 2
+    public var versionMin: UInt8                // Byte 3
+    public var isid: Data                       // Bytes 8-13 (6 bytes)
+    public var tsih: UInt16                     // Bytes 14-15
+    public var initiatorTaskTag: UInt32         // Bytes 16-19
+    public var cid: UInt16                      // Bytes 20-21 (Connection ID)
+    public var cmdSN: UInt32                    // Bytes 24-27
+    public var expStatSN: UInt32                // Bytes 28-31
+
+    // Data segment (text key=value pairs)
+    public var keyValuePairs: [String: String]
+
+    public init() {
+        self.transit = false
+        self.continue = false
+        self.currentStageCode = 0
+        self.nextStageCode = 0
+        self.versionMax = 0
+        self.versionMin = 0
+        self.isid = Data(count: 6)
+        self.tsih = 0
+        self.initiatorTaskTag = 0
+        self.cid = 0
+        self.cmdSN = 0
+        self.expStatSN = 0
+        self.keyValuePairs = [:]
+    }
+}
+
+public struct LoginResponsePDU: Sendable {
+    // Flags
+    public var transit: Bool
+    public var `continue`: Bool
+    public var currentStageCode: UInt8
+    public var nextStageCode: UInt8
+
+    // Fields
+    public var versionMax: UInt8
+    public var versionActive: UInt8
+    public var isid: Data
+    public var tsih: UInt16
+    public var initiatorTaskTag: UInt32
+    public var statSN: UInt32
+    public var expCmdSN: UInt32
+    public var maxCmdSN: UInt32
+    public var statusClass: UInt8
+    public var statusDetail: UInt8
+
+    // Data segment
+    public var keyValuePairs: [String: String]
+
+    public init() {
+        self.transit = false
+        self.continue = false
+        self.currentStageCode = 0
+        self.nextStageCode = 0
+        self.versionMax = 0
+        self.versionActive = 0
+        self.isid = Data(count: 6)
+        self.tsih = 0
+        self.initiatorTaskTag = 0
+        self.statSN = 0
+        self.expCmdSN = 0
+        self.maxCmdSN = 0
+        self.statusClass = 0
+        self.statusDetail = 0
+        self.keyValuePairs = [:]
+    }
+}
