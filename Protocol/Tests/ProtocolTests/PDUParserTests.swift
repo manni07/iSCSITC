@@ -56,7 +56,7 @@ final class PDUParserTests: XCTestCase {
         original.initiatorTaskTag = 0x87654321
 
         // Act: Encode then decode
-        let encoded = ISCSIPDUParser.encodeBHS(original)
+        let encoded = try ISCSIPDUParser.encodeBHS(original)
         let decoded = try ISCSIPDUParser.parseBHS(encoded)
 
         // Assert: Should match
@@ -65,5 +65,40 @@ final class PDUParserTests: XCTestCase {
         XCTAssertEqual(decoded.dataSegmentLength, original.dataSegmentLength)
         XCTAssertEqual(decoded.lun, original.lun)
         XCTAssertEqual(decoded.initiatorTaskTag, original.initiatorTaskTag)
+    }
+
+    func testParseBHS_ExtraBytes() throws {
+        // Data with more than 48 bytes should parse successfully
+        var data = Data(count: 60)  // 12 extra bytes
+        data[0] = 0x01
+
+        let bhs = try ISCSIPDUParser.parseBHS(data)
+        XCTAssertEqual(bhs.opcode, 0x01)
+    }
+
+    func testEncodeBHS_DataSegmentLengthTooLarge() {
+        var bhs = BasicHeaderSegment()
+        bhs.dataSegmentLength = 0x01000000  // Exceeds 24-bit max
+
+        XCTAssertThrowsError(try ISCSIPDUParser.encodeBHS(bhs)) { error in
+            guard case PDUParseError.malformedPDU(let message) = error else {
+                XCTFail("Expected malformedPDU error")
+                return
+            }
+            XCTAssertTrue(message.contains("24-bit"))
+        }
+    }
+
+    func testEncodeBHS_InvalidOpcodeSpecificSize() {
+        var bhs = BasicHeaderSegment()
+        bhs.opcodeSpecific = Data(count: 10)  // Wrong size
+
+        XCTAssertThrowsError(try ISCSIPDUParser.encodeBHS(bhs)) { error in
+            guard case PDUParseError.malformedPDU(let message) = error else {
+                XCTFail("Expected malformedPDU error")
+                return
+            }
+            XCTAssertTrue(message.contains("28 bytes"))
+        }
     }
 }

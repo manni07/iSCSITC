@@ -34,12 +34,12 @@ public struct ISCSIPDUParser {
 
         // Bytes 8-15: LUN (big-endian)
         bhs.lun = data.subdata(in: 8..<16).withUnsafeBytes {
-            $0.load(as: UInt64.self).bigEndian
+            $0.loadUnaligned(as: UInt64.self).bigEndian
         }
 
         // Bytes 16-19: ITT (big-endian)
         bhs.initiatorTaskTag = data.subdata(in: 16..<20).withUnsafeBytes {
-            $0.load(as: UInt32.self).bigEndian
+            $0.loadUnaligned(as: UInt32.self).bigEndian
         }
 
         // Bytes 20-47: Opcode-specific
@@ -49,7 +49,17 @@ public struct ISCSIPDUParser {
     }
 
     /// Encode BHS to data
-    public static func encodeBHS(_ bhs: BasicHeaderSegment) -> Data {
+    public static func encodeBHS(_ bhs: BasicHeaderSegment) throws -> Data {
+        // Validate 24-bit DataSegmentLength
+        guard bhs.dataSegmentLength <= 0xFFFFFF else {
+            throw PDUParseError.malformedPDU("DataSegmentLength exceeds 24-bit maximum: \(bhs.dataSegmentLength)")
+        }
+
+        // Validate opcodeSpecific size
+        guard bhs.opcodeSpecific.count == 28 else {
+            throw PDUParseError.malformedPDU("opcodeSpecific must be 28 bytes, got \(bhs.opcodeSpecific.count)")
+        }
+
         var data = Data(count: BasicHeaderSegment.size)
 
         data[0] = bhs.opcode
