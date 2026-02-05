@@ -146,3 +146,139 @@ public struct LoginResponsePDU: Sendable {
         self.keyValuePairs = [:]
     }
 }
+
+// MARK: - SCSI Command PDU
+
+public struct SCSICommandPDU: Sendable {
+    public struct Flags: Sendable {
+        public var read: Bool
+        public var write: Bool
+        public var final: Bool
+
+        public init(read: Bool, write: Bool, final: Bool) {
+            self.read = read
+            self.write = write
+            self.final = final
+        }
+    }
+
+    public var lun: UInt64
+    public var initiatorTaskTag: UInt32
+    public var expectedDataTransferLength: UInt32
+    public var cmdSN: UInt32
+    public var expStatSN: UInt32
+    public var cdb: Data  // Command Descriptor Block (up to 16 bytes)
+    public var flags: Flags
+
+    public init(
+        lun: UInt64,
+        initiatorTaskTag: UInt32,
+        expectedDataTransferLength: UInt32,
+        cmdSN: UInt32,
+        expStatSN: UInt32,
+        cdb: Data,
+        flags: Flags
+    ) {
+        self.lun = lun
+        self.initiatorTaskTag = initiatorTaskTag
+        self.expectedDataTransferLength = expectedDataTransferLength
+        self.cmdSN = cmdSN
+        self.expStatSN = expStatSN
+        self.cdb = cdb
+        self.flags = flags
+    }
+}
+
+// MARK: - SCSI Response PDU
+
+public struct SCSIResponsePDU: Sendable {
+    public var initiatorTaskTag: UInt32
+    public var statSN: UInt32
+    public var expCmdSN: UInt32
+    public var maxCmdSN: UInt32
+    public var status: UInt8  // SCSI status
+    public var response: UInt8  // iSCSI response code
+    public var residualCount: UInt32
+    public var senseData: Data
+
+    public init(
+        initiatorTaskTag: UInt32,
+        statSN: UInt32,
+        expCmdSN: UInt32,
+        maxCmdSN: UInt32,
+        status: UInt8,
+        response: UInt8,
+        residualCount: UInt32,
+        senseData: Data
+    ) {
+        self.initiatorTaskTag = initiatorTaskTag
+        self.statSN = statSN
+        self.expCmdSN = expCmdSN
+        self.maxCmdSN = maxCmdSN
+        self.status = status
+        self.response = response
+        self.residualCount = residualCount
+        self.senseData = senseData
+    }
+}
+
+// MARK: - Data-In PDU
+
+public struct DataInPDU: Sendable {
+    public struct Flags: Sendable {
+        public var final: Bool
+        public var acknowledge: Bool
+        public var overflow: Bool
+        public var underflow: Bool
+        public var statusPresent: Bool
+
+        public init(final: Bool, acknowledge: Bool, overflow: Bool, underflow: Bool, statusPresent: Bool) {
+            self.final = final
+            self.acknowledge = acknowledge
+            self.overflow = overflow
+            self.underflow = underflow
+            self.statusPresent = statusPresent
+        }
+    }
+
+    public var lun: UInt64
+    public var initiatorTaskTag: UInt32
+    public var targetTransferTag: UInt32
+    public var statSN: UInt32
+    public var expCmdSN: UInt32
+    public var maxCmdSN: UInt32
+    public var dataSequenceNumber: UInt32
+    public var bufferOffset: UInt32
+    public var residualCount: UInt32
+    public var flags: Flags
+    public var status: UInt8?  // Present only if statusPresent flag is set
+    public var data: Data
+
+    public init(
+        lun: UInt64,
+        initiatorTaskTag: UInt32,
+        targetTransferTag: UInt32,
+        statSN: UInt32,
+        expCmdSN: UInt32,
+        maxCmdSN: UInt32,
+        dataSequenceNumber: UInt32,
+        bufferOffset: UInt32,
+        residualCount: UInt32,
+        flags: Flags,
+        status: UInt8?,
+        data: Data
+    ) {
+        self.lun = lun
+        self.initiatorTaskTag = initiatorTaskTag
+        self.targetTransferTag = targetTransferTag
+        self.statSN = statSN
+        self.expCmdSN = expCmdSN
+        self.maxCmdSN = maxCmdSN
+        self.dataSequenceNumber = dataSequenceNumber
+        self.bufferOffset = bufferOffset
+        self.residualCount = residualCount
+        self.flags = flags
+        self.status = status
+        self.data = data
+    }
+}
