@@ -7,8 +7,8 @@ let package = Package(
         .macOS(.v15)  // Requires macOS 15+ for DriverKit
     ],
     products: [
-        .executable(
-            name: "iscsid",
+        .library(
+            name: "ISCSIDaemon",
             targets: ["ISCSIDaemon"]
         )
     ],
@@ -17,7 +17,7 @@ let package = Package(
         .package(path: "../Protocol")
     ],
     targets: [
-        .executableTarget(
+        .target(
             name: "ISCSIDaemon",
             dependencies: [
                 .product(name: "ISCSIProtocol", package: "Protocol"),
@@ -33,7 +33,7 @@ let package = Package(
         .testTarget(
             name: "DaemonTests",
             dependencies: ["ISCSIDaemon"],
-            path: "Tests/DaemonTests"
+            path: "Tests"
         )
     ]
 )
