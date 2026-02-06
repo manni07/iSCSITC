@@ -22,4 +22,8 @@ public class MockIOService {
     public func start() {
         state = .running
     }
+
+    public func setError() {
+        state = .error
+    }
 }
