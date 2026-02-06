@@ -17,3 +17,5 @@ DerivedData/
 
 # Build artifacts
 build/
+.worktrees/
+.worktrees/
