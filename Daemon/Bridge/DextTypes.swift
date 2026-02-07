@@ -29,11 +29,13 @@ struct SCSICommandDescriptor {
               UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8)  // 16 bytes
     var cdbLength: UInt8               // CDB length (6, 10, 12, or 16)
     var dataDirection: UInt8           // 0=none, 1=read, 2=write
+    var padding1: UInt16               // 2 bytes padding for alignment
     var transferLength: UInt32         // Expected transfer length
     var dataBufferOffset: UInt32       // Offset in data pool
     var reserved: (UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8,
                    UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8,
-                   UInt8, UInt8, UInt8, UInt8)  // 20 bytes padding
+                   UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8,
+                   UInt8, UInt8, UInt8, UInt8)  // 28 bytes padding
 
     static let size = 80
 
@@ -41,6 +43,20 @@ struct SCSICommandDescriptor {
     var cdbArray: [UInt8] {
         return [cdb.0, cdb.1, cdb.2, cdb.3, cdb.4, cdb.5, cdb.6, cdb.7,
                 cdb.8, cdb.9, cdb.10, cdb.11, cdb.12, cdb.13, cdb.14, cdb.15]
+    }
+
+    /// Default initializer
+    init() {
+        taskTag = 0
+        targetID = 0
+        lun = 0
+        cdb = (0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0)
+        cdbLength = 0
+        dataDirection = 0
+        padding1 = 0
+        transferLength = 0
+        dataBufferOffset = 0
+        reserved = (0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0)
     }
 
     /// Initialize from raw pointer
@@ -56,10 +72,41 @@ struct SCSICompletionDescriptor {
     var scsiStatus: UInt8              // SCSI status byte
     var serviceResponse: UInt8         // iSCSI response code
     var senseLength: UInt16            // Sense data length
-    var senseData: [UInt8]             // 252 bytes
+    var senseData: (UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8,
+                    UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8,
+                    UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8,
+                    UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8,
+                    UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8,
+                    UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8,
+                    UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8,
+                    UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8,
+                    UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8,
+                    UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8,
+                    UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8,
+                    UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8,
+                    UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8,
+                    UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8,
+                    UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8,
+                    UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8,
+                    UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8,
+                    UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8,
+                    UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8,
+                    UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8,
+                    UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8,
+                    UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8,
+                    UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8,
+                    UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8,
+                    UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8,
+                    UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8,
+                    UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8,
+                    UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8,
+                    UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8,
+                    UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8,
+                    UInt8, UInt8, UInt8, UInt8)  // 244 bytes
     var dataTransferCount: UInt32      // Actual bytes transferred
     var residualCount: UInt32          // Residual count
-    var reserved: (UInt8, UInt8, UInt8, UInt8)  // 4 bytes padding
+    var reserved: (UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8,
+                   UInt8, UInt8, UInt8, UInt8)  // 12 bytes padding
 
     static let size = 280
 
@@ -69,10 +116,17 @@ struct SCSICompletionDescriptor {
         scsiStatus = 0
         serviceResponse = 0
         senseLength = 0
-        senseData = [UInt8](repeating: 0, count: 252)
+        senseData = (0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+                     0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+                     0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+                     0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+                     0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+                     0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+                     0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+                     0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0)
         dataTransferCount = 0
         residualCount = 0
-        reserved = (0, 0, 0, 0)
+        reserved = (0,0,0,0,0,0,0,0,0,0,0,0)
     }
 
     init(taskTag: UInt64, itt: UInt32, scsiStatus: UInt8, transferCount: UInt32) {
