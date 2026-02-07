@@ -27,7 +27,8 @@ let package = Package(
             sources: [
                 "ISCSIDaemon.swift",
                 "DextConnector.swift",
-                "Bridge/DextTypes.swift"
+                "Bridge/DextTypes.swift",
+                "Protocols/DextConnectorProtocol.swift"
             ]
         ),
         .testTarget(

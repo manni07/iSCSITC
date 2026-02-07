@@ -14,7 +14,7 @@ enum DextConnectorError: Error {
 }
 
 /// Manages connection to iSCSIVirtualHBA dext and shared memory access
-actor DextConnector {
+actor DextConnector: DextConnectorProtocol {
     private var connection: io_connect_t = 0
 
     // Mapped memory pointers

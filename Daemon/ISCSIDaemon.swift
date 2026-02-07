@@ -3,7 +3,7 @@ import ISCSIProtocol  // Import the existing Protocol layer
 
 /// Main daemon actor that processes SCSI commands and sends iSCSI PDUs
 actor ISCSIDaemon {
-    private let dextConnector: DextConnector
+    private let dextConnector: any DextConnectorProtocol
     private var sessionManager: ISCSISessionManager?
     private var isRunning = false
 
@@ -11,8 +11,8 @@ actor ISCSIDaemon {
     private var taskMapping: [UInt64: UInt32] = [:]
     private var nextITT: UInt32 = 1
 
-    init() {
-        self.dextConnector = DextConnector()
+    init(connector: (any DextConnectorProtocol)? = nil) {
+        self.dextConnector = connector ?? DextConnector()
     }
 
     /// Start the daemon
