@@ -23,7 +23,7 @@ actor MockDextConnector: DextConnectorProtocol {
     private var nextSessionID: UInt64 = 1
 
     /// HBA status value
-    private var hbaStatus: UInt64 = 0
+    private var hbaStatus: UInt64 = 1  // Default online status
 
     /// Command queue (simulated ring buffer)
     private var commandQueue: [SCSICommandDescriptor] = []
@@ -41,6 +41,9 @@ actor MockDextConnector: DextConnectorProtocol {
 
     /// Should connect() throw an error
     var shouldFailConnection = false
+
+    /// Error code for connection failure (used with shouldFailConnection)
+    var connectionFailureCode: Int32 = -1
 
     /// Should mapSharedMemory() throw an error
     var shouldFailMemoryMapping = false
@@ -76,6 +79,9 @@ actor MockDextConnector: DextConnectorProtocol {
 
     /// Session IDs passed to destroySession()
     private(set) var destroyedSessionIDs: [UInt64] = []
+
+    /// Last session ID passed to destroySession()
+    private(set) var lastDestroyedSessionID: UInt64?
 
     /// Number of times hasPendingCommands() was called
     private(set) var hasPendingCommandsCallCount = 0
@@ -167,6 +173,7 @@ actor MockDextConnector: DextConnectorProtocol {
     func destroySession(_ sessionID: UInt64) async throws {
         destroySessionCallCount += 1
         destroyedSessionIDs.append(sessionID)
+        lastDestroyedSessionID = sessionID
 
         if shouldFailDestroySession {
             throw MockError.destroySessionFailed
@@ -235,13 +242,46 @@ actor MockDextConnector: DextConnectorProtocol {
         hbaStatus = status
     }
 
+    /// Set error injection flags for testing
+    func setErrorInjection(
+        shouldFailConnection: Bool? = nil,
+        connectionFailureCode: Int32? = nil,
+        shouldFailMemoryMapping: Bool? = nil,
+        shouldFailHBAStatus: Bool? = nil,
+        shouldFailCreateSession: Bool? = nil,
+        shouldFailDestroySession: Bool? = nil,
+        shouldFailWriteCompletion: Bool? = nil
+    ) {
+        if let value = shouldFailConnection {
+            self.shouldFailConnection = value
+        }
+        if let value = connectionFailureCode {
+            self.connectionFailureCode = value
+        }
+        if let value = shouldFailMemoryMapping {
+            self.shouldFailMemoryMapping = value
+        }
+        if let value = shouldFailHBAStatus {
+            self.shouldFailHBAStatus = value
+        }
+        if let value = shouldFailCreateSession {
+            self.shouldFailCreateSession = value
+        }
+        if let value = shouldFailDestroySession {
+            self.shouldFailDestroySession = value
+        }
+        if let value = shouldFailWriteCompletion {
+            self.shouldFailWriteCompletion = value
+        }
+    }
+
     /// Reset all state and counters
     func reset() {
         isConnected = false
         isMemoryMapped = false
         sessions.removeAll()
         nextSessionID = 1
-        hbaStatus = 0
+        hbaStatus = 1  // Default online status
 
         commandQueue.removeAll()
         commandQueueHead = 0
@@ -252,6 +292,7 @@ actor MockDextConnector: DextConnectorProtocol {
         completionQueueTail = 0
 
         shouldFailConnection = false
+        connectionFailureCode = -1
         shouldFailMemoryMapping = false
         shouldFailHBAStatus = false
         shouldFailCreateSession = false
@@ -264,6 +305,7 @@ actor MockDextConnector: DextConnectorProtocol {
         createSessionCallCount = 0
         destroySessionCallCount = 0
         destroyedSessionIDs.removeAll()
+        lastDestroyedSessionID = nil
         hasPendingCommandsCallCount = 0
         readNextCommandCallCount = 0
         writeCompletionCallCount = 0
