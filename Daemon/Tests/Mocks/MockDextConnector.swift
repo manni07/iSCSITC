@@ -172,8 +172,6 @@ actor MockDextConnector: DextConnectorProtocol {
 
     func destroySession(_ sessionID: UInt64) async throws {
         destroySessionCallCount += 1
-        destroyedSessionIDs.append(sessionID)
-        lastDestroyedSessionID = sessionID
 
         if shouldFailDestroySession {
             throw MockError.destroySessionFailed
@@ -186,6 +184,10 @@ actor MockDextConnector: DextConnectorProtocol {
         guard sessions[sessionID] != nil else {
             throw MockError.sessionNotFound
         }
+
+        // Track AFTER validation succeeds
+        destroyedSessionIDs.append(sessionID)
+        lastDestroyedSessionID = sessionID
 
         sessions.removeValue(forKey: sessionID)
     }
