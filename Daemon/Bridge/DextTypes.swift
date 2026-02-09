@@ -173,3 +173,33 @@ enum ServiceResponse: UInt8 {
     case success = 0
     case targetFailure = 1
 }
+
+#if DEBUG
+extension SCSICommandDescriptor {
+    /// Test-only convenience initializer
+    init(taskTag: UInt64, targetID: UInt32 = 0, lun: UInt64 = 0,
+         cdbArray: [UInt8]? = nil) {
+        self.init()
+        self.taskTag = taskTag
+        self.targetID = targetID
+        self.lun = lun
+
+        if let cdbArray = cdbArray {
+            // Copy array into tuple
+            self.cdbLength = UInt8(cdbArray.count)
+            // Use mirror reflection to set tuple elements
+            withUnsafeMutablePointer(to: &self.cdb) { ptr in
+                let buffer = UnsafeMutableRawPointer(ptr).assumingMemoryBound(to: UInt8.self)
+                for (index, byte) in cdbArray.enumerated() where index < 16 {
+                    buffer[index] = byte
+                }
+            }
+        } else {
+            // Default: TEST UNIT READY (0x00)
+            self.cdb.0 = 0x00
+            self.cdbLength = 6
+        }
+        self.dataDirection = SCSIDataDirection.none.rawValue
+    }
+}
+#endif
