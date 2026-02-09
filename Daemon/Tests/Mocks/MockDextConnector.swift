@@ -356,4 +356,21 @@ actor MockDextConnector: DextConnectorProtocol {
             return commandQueueSize - commandQueueHead + commandQueueTail
         }
     }
+
+    // MARK: - Test Helper Methods
+
+    /// Get completion by task tag
+    func getCompletion(forTaskTag taskTag: UInt64) -> SCSICompletionDescriptor? {
+        writtenCompletions.first { $0.taskTag == taskTag }
+    }
+
+    /// Get completion by ITT
+    func getCompletion(forITT itt: UInt32) -> SCSICompletionDescriptor? {
+        writtenCompletions.first { $0.initiatorTaskTag == itt }
+    }
+
+    /// Clear all written completions (for test cleanup)
+    func clearCompletions() {
+        writtenCompletions.removeAll()
+    }
 }
