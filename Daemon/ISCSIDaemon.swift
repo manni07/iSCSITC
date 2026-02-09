@@ -162,6 +162,35 @@ actor ISCSIDaemon {
         // Stub return empty list
         return []
     }
+
+    // MARK: - Test-Only API
+
+    #if DEBUG
+    /// Test-only: Get current task mapping count
+    internal var activeTaskCount: Int {
+        taskMapping.count
+    }
+
+    /// Test-only: Check if task tag has mapping
+    internal func hasMapping(for taskTag: UInt64) -> Bool {
+        taskMapping[taskTag] != nil
+    }
+
+    /// Test-only: Get ITT for task tag
+    internal func getITT(for taskTag: UInt64) -> UInt32? {
+        taskMapping[taskTag]
+    }
+
+    /// Test-only: Process single command without starting loop
+    internal func processCommandSync(_ command: SCSICommandDescriptor) async {
+        await processCommand(command)
+    }
+
+    /// Test-only: Set nextITT for wraparound testing
+    internal func setNextITT(_ value: UInt32) {
+        nextITT = value
+    }
+    #endif
 }
 
 /// Errors specific to daemon operation
