@@ -2,7 +2,7 @@
 
 **Purpose:** This document captures the complete project state, architectural decisions, and context needed to continue development in a new Claude Code session. It serves as the authoritative handoff document.
 
-**Last updated:** 2026-02-04
+**Last updated:** 2026-02-13
 
 ---
 
@@ -13,7 +13,7 @@
 | **Project** | Native macOS iSCSI Initiator |
 | **Path** | `/Volumes/turgay/projekte/iSCSITC/` |
 | **Language** | German (docs), English (code) |
-| **Code status** | No code exists yet — planning/specification phase only |
+| **Code status** | Phase 3 implementation in progress — IntegrationTests complete |
 | **Target platforms** | macOS 14+ (Sonoma), Apple Silicon primary, Intel secondary |
 | **Architecture** | DriverKit (C++20) + Swift 6.0 + Network.framework |
 
@@ -31,6 +31,7 @@
 | `docs/gap-analysis.md` | 52-gap analysis across 13 categories (P0-P3) | Current |
 | `docs/testing-plan.md` | Testing strategy document | Current |
 | `docs/session-transfer-protocol.md` | This file | Current |
+| `DEVELOPMENT_DIARY.md` | Session-by-session implementation log | Current |
 
 ### Implementation Guides (New - Feb 2026)
 
@@ -42,6 +43,32 @@
 | `docs/deployment-distribution-guide.md` | Build, sign, notarize, distribute | 1,084 | ✅ Complete |
 
 **Total Documentation**: ~11,679 lines across all guides
+
+### Integration Tests (2026-02-13)
+
+**File**: `Daemon/Tests/DaemonTests/IntegrationTests.swift`
+- **Purpose**: Real dext connectivity tests
+- **Size**: 340 lines
+- **Test Count**: 9 (7 main + 2 helper)
+- **Status**: ✅ Implemented, compiles, auto-skips when dext unavailable
+- **Blockers**: Requires paid Apple Developer account + SIP disabled
+
+**Test Coverage**:
+- Connection establishment (testConnectToDext)
+- Shared memory mapping (testMapSharedMemory) — Command/Completion/Data regions
+- HBA status queries (testGetHBAStatus)
+- Session lifecycle (testCreateAndDestroySession)
+- Command queue access (testCommandQueueAccess)
+- Completion notifications (testWriteCompletion)
+- Full workflow integration (testFullLifecycle)
+- Error handling validation (testConnectionErrorHandling, testMemoryMappingWithoutConnection)
+
+**Implementation Strategy**:
+- Uses real `DextConnector` (not mocks) for actual IOKit communication
+- XCTSkip mechanism when dext unavailable
+- Comprehensive prerequisites documentation in test file
+- All tests compile and discover successfully
+- Ready to run once dext is built and loaded
 
 ### Key Document Sections (v1.2 Entwicklungsplan)
 
@@ -287,7 +314,58 @@ Before starting Phase 1 implementation, verify these against current Apple docum
 
 ---
 
-## 10. Session Continuation Instructions
+## 10. Pending Work & Open Plans
+
+### Next Implementation Phase: Dext Build & Testing
+
+**Current Status** (2026-02-13):
+1. ✅ Integration tests implemented (IntegrationTests.swift, 340 lines, 9 tests)
+2. ✅ Tests compile successfully
+3. ✅ Tests auto-skip when dext unavailable
+4. ❌ Paid Apple Developer account needed ($99/year)
+5. ❌ SIP disabled (physical Mac access required)
+6. ❌ Dext built in Xcode
+7. ❌ Dext loaded via systemextensionsctl
+
+**When Unblocked**:
+
+#### Step 1: Build Dext (5 min)
+```bash
+cd DriverKit
+open iSCSIVirtualHBA.xcodeproj
+# In Xcode: Product → Build (Cmd+B)
+```
+
+#### Step 2: Load Dext (2 min)
+```bash
+cd DriverKit/build/Debug
+sudo systemextensionsctl load iSCSIVirtualHBA.dext
+ioreg -l | grep iSCSI  # Verify
+```
+
+#### Step 3: Run Integration Tests (1 min)
+```bash
+cd Daemon
+swift test --filter IntegrationTests
+# Should pass (no longer skip)
+```
+
+#### Step 4: Full Stack Testing
+- Configure iSCSI target (Linux LIO/NAS/TrueNAS)
+- Test daemon connectivity
+- Verify disk appears in macOS
+- Performance testing
+
+### Future Enhancements (P3)
+- Performance optimization
+- Error recovery improvements
+- Advanced SCSI command support
+- Multi-target session handling
+- Production deployment (signed dext, SIP enabled)
+
+---
+
+## 11. Session Continuation Instructions
 
 When starting a new Claude Code session for this project:
 
